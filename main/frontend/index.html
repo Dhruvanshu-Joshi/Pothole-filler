@@ -1,0 +1,494 @@
+<html>
+
+<head>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200;300;400&display=swap" rel="stylesheet" />
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.js"></script>
+  <script>
+    var websocket = new WebSocket("ws://" + location.hostname + "/");
+
+    function send_test() {
+      websocket.send("T" + "test");
+    }
+    function speed_change() {
+      websocket.send("S" + document.getElementById("speed_slider").value);
+      document.getElementById("speed_value").innerHTML =
+        document.getElementById("speed_slider").value;
+    }
+    function right_change() {
+      websocket.send("R" + "true");
+    }
+    function left_change() {
+      websocket.send("L" + "true");
+    }
+    function forward_change() {
+      websocket.send("F" + "true");
+    }
+    function backward_change() {
+      websocket.send("B" + "true");
+    }
+    function left_servo() {
+      websocket.send("U" + "true");
+    }
+    function right_servo() {
+      websocket.send("P" + "true");
+    }
+    function stop_change() {
+      websocket.send("F" + "false");
+      websocket.send("B" + "false");
+      websocket.send("L" + "false");
+      websocket.send("R" + "false");
+    }
+    //repeat on btn hold
+
+    window.onload = function () {
+      console.log("LOADED");
+      var ws = new WebSocket("ws://" + location.hostname + "/");
+
+      //Configuration variables
+      var updateInterval = 1000; //in ms
+      var numberElements = 500;
+
+      //Globals
+      var updateCount = 0;
+      let btnHoldCounter;
+    };
+  </script>
+
+  <style>
+    @import "susy";
+    @import "compass/reset";
+
+    /* style for speed slider */
+    .slidecontainer {
+      width: 100%;
+      /* Width of the outside container */
+    }
+
+    /* The slider itself */
+    .slider {
+      -webkit-appearance: none;
+      /* Override default CSS styles */
+      appearance: none;
+      width: 100%;
+      /* Full-width */
+      height: 25px;
+      /* Specified height */
+      background:cyan;
+      /* Grey background */
+      outline: none;
+      /* Remove outline */
+      opacity: 0.7;
+      /* Set transparency (for mouse-over effects on hover) */
+      -webkit-transition: 0.2s;
+      /* 0.2 seconds transition on hover */
+      transition: opacity 0.2s;
+    }
+
+    /* Mouse-over effects */
+    .slider:hover {
+      opacity: 1;
+      /* Fully shown on mouse-over */
+    }
+
+    /* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
+    .slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      /* Override default look */
+      appearance: none;
+      width: 25px;
+      /* Set a specific slider handle width */
+      height: 25px;
+      /* Slider handle height */
+      background: red;
+      /* Green background */
+      cursor: pointer;
+      /* Cursor on hover */
+    }
+
+    .slider::-moz-range-thumb {
+      width: 25px;
+      /* Set a specific slider handle width */
+      height: 25px;
+      /* Slider handle height */
+      background: red;
+      /* Green background */
+      cursor: pointer;
+      /* Cursor on hover */
+    }
+
+    body {
+      font-family: Oswald, sans-serif;
+      /* color: rgba(3, 0, 55, 255); */
+      /*background: rgba(3, 0, 55, 255);*/
+      background-image: url("https://drive.google.com/uc?export=view&id=1TzN2w6t95_IgvXfAW_EnbSakcwfLxv2P");
+      width:100%;
+      height:150%;
+      background-size: cover;
+      background-repeat: no-repeat;
+    }
+
+    img {
+      /* filter: grayscale(1) invert(1); */
+      width: 17%;
+      height: 15.4%;
+      right:80%;
+    }
+
+    span.input-group-text {
+      /* background-color: #FFF; */
+      border-radius: 5px 0px 0px 5px;
+      border: 0px solid #ffffff;
+    }
+
+    .form-control {
+      border-radius: 0px 5px 5px 0px;
+      margin: 0;
+      border: 0px solid #ffffff;
+    }
+
+    .container {
+      display: flex;
+      color: rgb(197, 21, 21);
+      position: relative;
+    }
+
+    .value-container {
+      margin: 2em 2em 2em 5.3em;
+    }
+
+    .label {
+      flex: 1;
+       vertical-align: left;
+      text-align: left; 
+    }
+
+    .x {
+      flex: 3;
+      text-align: center;
+      background-color: rgba(197, 40, 61, 0.55);
+      margin: 10px;
+      border-radius: 15px;
+    }
+
+    .y {
+      flex: 3;
+      text-align: center;
+      background-color: rgba(103, 148, 54, 0.6);
+      margin-top: 10px;
+      margin-bottom: 10px;
+      border-radius: 15px;
+    }
+
+    .z {
+      flex: 3;
+      text-align: center;
+      background-color: rgba(35, 87, 137, 0.64);
+      margin: 10px;
+      border-radius: 15px;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    .stars,
+    .twinkling,
+    .clouds {
+      position: absolute;
+      display: block;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .arrow-button {
+      /* Transparent background */
+      background-color: transparent;
+
+      /* Size */
+      height: 12px;
+      width: 12px;
+    }
+
+    .arrow-button--t {
+      /* Edges */
+      border-left: 1px solid #d1d5db;
+      border-top: 1px solid #d1d5db;
+      transform: translateY(25%) rotate(45deg);
+    }
+
+    .arrow-button--r {
+      /* Edges */
+      border-right: 1px solid #d1d5db;
+      border-top: 1px solid #d1d5db;
+      transform: translateX(-25%) rotate(45deg);
+    }
+
+    .arrow-button--b {
+      /* Edges */
+      border-bottom: 1px solid #d1d5db;
+      border-right: 1px solid #d1d5db;
+      transform: translateY(-25%) rotate(45deg);
+    }
+
+    .arrow-button--l {
+      /* Edges */
+      border-bottom: 1px solid #d1d5db;
+      border-left: 1px solid #d1d5db;
+      transform: translateX(25%) translateY(-50%) rotate(45deg);
+    }
+
+    .stars {
+      z-index: -102;
+      
+      /*background: rgba(3, 0, 55, 255) url("https://image.ibb.co/mjnygo/stars.png") repeat top center;
+      background-image: url("https://drive.google.com/uc?export=view&id=1X-XlHcH_J2yVQgHOj6Msr6AUmN65HQqi");
+      background-size: 100%;*/
+      
+    }
+
+    .twinkling {
+      z-index: -101;
+      background: transparent url("https://image.ibb.co/ir1DE8/twinkling.png") repeat top center;
+      animation: move-twink-back 200s linear infinite;
+    }
+
+    .clouds {
+      z-index: -100;
+      background: transparent url("https://image.ibb.co/bT4N7T/clouds.png") repeat top center;
+      animation: move-clouds-back 200s linear infinite;
+    }
+
+    .arrow-button {
+      background-color: transparent;
+      height: 24px;
+      width: 24px;
+    }
+
+    #forward_btn {
+      height: 15%;
+      width: 20.7%;
+      font-size: 25px;
+      margin: auto;
+      background-color: cyan;
+      border-color: black;
+      position: absolute;
+      left: 42%;
+      top: 50%;
+
+    }
+
+    #left_btn {
+      height: 15%;
+      width: 20.7%;
+      font-size: 25px;
+      background-color: cyan;
+      border-color: black;
+      margin: auto;
+      position: absolute;
+      left: 3%;
+      top: 74%;
+
+    }
+
+    #right_btn {
+      height: 15%;
+      width: 20.7%;
+      font-size: 25px;
+      margin: auto;
+      position: absolute;
+      background-color: cyan;
+      border-color: black;
+      left: 76%;
+      top: 74%;
+
+    }
+
+    #backward_btn {
+      height: 15%;
+      width: 20.7%;
+      ;
+      font-size: 25px;
+      margin: auto;
+      position: absolute;
+      background-color: cyan;
+      border-color: black;
+      left: 42%;
+      top: 96%;
+
+    }
+
+    #left_servo {
+      height: 15%;
+      width: 15.7%;
+      font-size: 50px;
+      margin: auto;
+      position: absolute;
+      background-color: cyan;
+      border-color: black;
+      left: 32%;
+      top: 74%;
+
+    }
+
+    #right_servo {
+      height: 15%;
+      width: 15.7%;
+      font-size: 50px;
+      margin: auto;
+      position: absolute;
+      background-color: cyan;
+      border-color: black;
+      left: 55%;
+      top: 74%;
+
+    }
+
+    .arrow-button--t {
+      border-left: 2px solid black;
+      border-top: 2px solid black;
+      transform: translateY(25%) translateX(120%) rotate(45deg);
+    }
+
+    .arrow-button--r {
+      border-right: 2px solid black;
+      border-top: 2px solid black;
+      transform: translateY(-10%) translateX(100%) rotate(45deg);
+    }
+
+    .arrow-button--b {
+      border-bottom: 2px solid black;
+      border-right: 2px solid black;
+      transform: translateY(-50%) translateX(120%) rotate(45deg);
+    }
+
+    .arrow-button--l {
+      border-bottom: 2px solid black;
+      border-left: 2px solid black;
+      transform: translateY(-25%) translateX(150%) rotate(45deg);
+    }
+
+    .unselectable {
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -khtml-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    @keyframes move-twink-back {
+      from {
+        background-position: 0 0;
+      }
+
+      to {
+        background-position: -10000px 5000px;
+      }
+    }
+
+    @keyframes move-clouds-back {
+      from {
+        background-position: 0 0;
+      }
+
+      to {
+        background-position: 10000px 0;
+      }
+    }
+
+    @media (max-width: 1200px) {
+      .value-container {
+        margin-top: 2em;
+      }
+
+      .offset-container {
+        margin-left: 23em;
+      }
+    }
+
+    @media (min-width: 1200px) {
+      .value-container {
+        margin-top: 2em;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="labelAccel" class="label">
+    <img src="https://drive.google.com/uc?export=view&id=1DB9ZswS0a4w_Iri9hj9k3ZUT-nO0vgbW" width="200" height="120"  />
+    <h1><label style="color: orangered" class="unselectable" >Speed Control</label> </h1>
+  </div>
+  <div class="container-fluid">
+    <!--button with id test_btn-->
+    <div class="row">
+      <!--slider for speed-->
+      <div class="input-group mb-3">
+        <div class="slidecontainer">
+          <input type="range" min="-100" max="100" value="0" class="slider" id="speed_slider"
+            onchange="speed_change()" />
+        </div>
+        <!--display value of speed alognside-->
+        <div class="input-group-append">
+          <span class="input-group-text" id="basic-addon2">
+            <span id="speed_value">0</span>
+          </span>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div>
+        <div>
+          <!--button-->
+
+          <button class="arrow-buttons" nmousedown="forward_change()" onmouseup="stop_change()" type="button"
+            id="forward_btn" ontouchstart="forward_change()" ontouchend="stop_change()" ontouchcancel="stop_change()">
+            <div class="arrow-button arrow-button--t"></div>
+            <label class="unselectable">Forward</label>
+          </button>
+
+          <button class="arrow-buttons" type="button" id="right_btn" onmousedown="right_change()"
+            onmouseup="stop_change()" ontouchstart="right_change()" ontouchend="stop_change()"
+            ontouchcancel="stop_change()">
+            <div class="arrow-button arrow-button--r"></div>
+            <label class="unselectable">Right</label>
+          </button>
+          <button class="arrow-buttons" type="button" id="backward_btn" onmousedown="backward_change()"
+            onmouseup="stop_change()" ontouchstart="backward_change()" ontouchend="stop_change()"
+            ontouchcancel="stop_change()">
+            <div class="arrow-button arrow-button--b"></div>
+            <label class="unselectable">Back</label>
+          </button>
+
+          <button class="arrow-buttons" type="button" id="left_btn" onmousedown="left_change()"
+            onmouseup="stop_change()" ontouchstart="left_change()" ontouchend="stop_change()"
+            ontouchcancel="stop_change()">
+            <div class="arrow-button arrow-button--l"></div>
+            <label class="unselectable">Left</label>
+          </button>
+
+          <button type="button" id="left_servo" onmousedown="left_servo()" onmouseup="stop_change()"
+            ontouchstart="left_servo()" ontouchend="stop_change()" ontouchcancel="stop_change()">
+            <label class="unselectable">&#8634;</label>
+          </button>
+
+          <button type="button" id="right_servo" onmousedown="right_servo()" onmouseup="stop_change()"
+            ontouchstart="right_servo()" ontouchend="stop_change()" ontouchcancel="stop_change()"><label class="unselectable">&#8635;</label></button>
+        </div>
+      </div>
+    </div>
+    <div class="stars"></div>
+    <div class="twinkling"></div>
+    <div class="clouds"></div>
+</body>
+
+</html>
